@@ -146,6 +146,7 @@ const cancel = () => {
 }
 
 const initHasSpuData = async (row: SpuData) => {
+  console.log('111')
   SPUParams.value = row
   let res: AllTradeMark = await reqAllTrademark()
   let res1: SpuHasImage = await reqSpuImageList(row.id as number)
