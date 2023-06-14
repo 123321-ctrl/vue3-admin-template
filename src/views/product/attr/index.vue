@@ -113,7 +113,7 @@
 <script setup lang="ts">
 import Category from '@/components/Category/index.vue'
 import Table from '@/components/table/index.vue'
-import { reactive, ref, watch, nextTick } from 'vue'
+import { reactive, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { reqAttr, reqAddOrUpdateAttr, deleteAttrs } from '@/api/product/attr'
 import { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
 import { ElMessage } from 'element-plus'
@@ -212,6 +212,10 @@ const updateAttr = (row: Attr) => {
 const cancel = () => {
   screen.value = 0
 }
+
+onBeforeUnmount(() => {
+  categoryStore.$reset()
+})
 </script>
 
 <style scoped lang="scss"></style>

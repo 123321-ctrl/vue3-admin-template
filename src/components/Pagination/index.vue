@@ -3,7 +3,7 @@
     class="pagination"
     :current-page="currentPage"
     :page-size="pageSize"
-    :page-sizes="[3, 5, 7, 9]"
+    :page-sizes="pageSizes"
     :background="background"
     layout="prev, pager, next, jumper, ->,sizes,total"
     :total="total"
@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 // import { ref } from 'vue'
-defineProps(['background', 'total', 'pageSize', 'currentPage'])
+defineProps(['background', 'total', 'pageSize', 'currentPage', 'pageSizes'])
 
 const emit = defineEmits(['handleSizeChange', 'currentChange'])
 </script>

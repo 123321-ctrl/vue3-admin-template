@@ -44,6 +44,11 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/a/, ''),
         },
+        [env.VITE_APP_BASE_API_DEV1]: {
+          target: env.VITE_SERVE3,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/b/, ''),
+        },
       },
     },
   }

@@ -52,6 +52,7 @@
         :total="total"
         :currentPage="currentPage"
         :pageSize="pageSize"
+        :pageSizes="pageSizes"
         @handleSizeChange="handleSizeChange"
         @currentChange="handleCurrentChange"
       ></Pagination>
@@ -122,6 +123,7 @@ let currentPage = ref<number>(1)
 let pageSize = ref<number>(3)
 let background = ref(true)
 let total = ref<number>(0)
+let pageSizes = [3, 5, 7, 9]
 
 const dialogFormVisible = ref<boolean>(false)
 const formLabelWidth = '95px'

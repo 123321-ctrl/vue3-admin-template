@@ -57,6 +57,7 @@
         :total="total"
         :currentPage="currentPage"
         :pageSize="pageSize"
+        :pageSizes="pageSizes"
         @handleSizeChange="handleSizeChange"
         @currentChange="handleCurrentChange"
       ></Pagination>
@@ -71,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 import Category from '@/components/Category/index.vue'
 import Table from '@/components/table/index.vue'
 import Pagination from '@/components/Pagination/index.vue'
@@ -93,6 +94,7 @@ let currentPage = ref<number>(1)
 let pageSize = ref<number>(3)
 let background = ref(true)
 let total = ref<number>(0)
+let pageSizes = [3, 5, 7, 9]
 let category3Id = ref<string | undefined>('')
 
 watch(
@@ -132,6 +134,7 @@ const getSpuList = async () => {
 
 const addSpu = () => {
   screen.value = 1
+  spu.value.initAddSpu(category3Id.value)
 }
 
 const updateSpu = (row: SpuData) => {
@@ -141,9 +144,17 @@ const updateSpu = (row: SpuData) => {
   spu.value.initHasSpuData(row)
 }
 
-const changeScreen = () => {
-  screen.value = 0
+const changeScreen = (obj: any) => {
+  screen.value = obj.flag
+  if (obj.params === 'add') {
+    currentPage.value = 1
+  }
+  getSpuList()
 }
+
+onBeforeUnmount(() => {
+  categoryStore.$reset()
+})
 </script>
 
 <style scoped lang="scss"></style>

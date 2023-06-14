@@ -46,44 +46,92 @@
       </el-form-item>
 
       <el-form-item label="SPU销售属性">
-        <el-select>
-          <el-option label="华为"></el-option>
-        </el-select>
-        <el-button type="primary" size="default" icon="Plus">
-          添加销售属性
-        </el-button>
-        <el-table
-          border
-          style="margin: 10px 0"
-          :data="SPUParams.spuSaleAttrList"
+        <el-select
+          :placeholder="
+            unSelectSaleAttr.length
+              ? `还未选择${unSelectSaleAttr.length}个`
+              : '无'
+          "
+          v-model="saleAttrIdAndVal"
         >
-          <el-table-ccolumn
+          <el-option
+            v-for="item in unSelectSaleAttr"
+            :key="item.id"
+            :label="item.name"
+            :value="`${item.id}:${item.name}`"
+          ></el-option>
+        </el-select>
+        <el-button
+          type="primary"
+          size="default"
+          icon="Plus"
+          :disabled="saleAttrIdAndVal ? false : true"
+          @click="addSaleAttr"
+        >
+          点击添加
+        </el-button>
+        <el-table :data="saleAttr" border style="margin: 10px 0">
+          <el-table-column
             label="序号"
             type="index"
             align="center"
             width="80"
-          ></el-table-ccolumn>
-          <el-table-ccolumn
+          ></el-table-column>
+          <el-table-column
             prop="saleAttrName"
             label="销售属性名"
             width="100"
-          ></el-table-ccolumn>
-          <el-table-ccolumn label="销售属性值">
-            <!-- <template v-slot="{ row }">
+          ></el-table-column>
+          <el-table-column label="销售属性值">
+            <template v-slot="{ row }">
               <el-tag
                 style="margin: 5px"
-                v-for="item in row.spuSaleAttrValueList"
+                v-for="(item, index) in row?.spuSaleAttrValueList"
                 :key="item.id"
+                class="mx-1"
+                closable
+                @close="row?.spuSaleAttrValueList.splice(index, 1)"
               >
-                {{ item.saleAttrValueName }}
+                {{ item?.saleAttrValueName }}
               </el-tag>
-            </template> -->
-          </el-table-ccolumn>
-          <el-table-ccolumn label="操作" width="80"></el-table-ccolumn>
+              <el-input
+                v-if="row.flag == true"
+                placeholder="请输入属性值"
+                v-model="row.saleAttrValue"
+                size="small"
+                style="width: 120px"
+                @blur="changeBtn(row)"
+              ></el-input>
+              <el-button
+                v-else
+                type="primary"
+                size="small"
+                icon="Plus"
+                @click="changeInput(row)"
+              ></el-button>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="80">
+            <template v-slot="scope">
+              <el-button
+                type="primary"
+                size="small"
+                icon="Delete"
+                @click="saleAttr.splice(scope.$index, 1)"
+              ></el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="default">保存</el-button>
+        <el-button
+          type="primary"
+          size="default"
+          @click="save"
+          :disabled="!saleAttr.length"
+        >
+          保存
+        </el-button>
         <el-button type="primary" size="default" @click="cancel">
           取消
         </el-button>
@@ -93,24 +141,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { UploadProps, UploadUserFile } from 'element-plus'
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { UploadProps } from 'element-plus'
 const emit = defineEmits(['changeScreen'])
 
 import {
   reqAllTrademark,
   reqSpuImageList,
   reqSpuSaleAttr,
-  reqAllSaleAttr,
+  reqAddOrUpdateSpu,
 } from '@/api/product/spu/index'
 import type {
   TradeMark,
   SpuData,
   AllTradeMark,
+  SpuImage,
   SpuHasImage,
+  SaleAttr,
   SaleAttrRes,
-  HasSaleAttrRes,
   HasSaleAttr,
+  SaleAttrValue,
 } from '@/api/product/spu/type'
 
 let SPUParams = ref<SpuData>({
@@ -123,9 +174,43 @@ let SPUParams = ref<SpuData>({
 })
 
 let allTrademark = ref<TradeMark[]>([])
-let imgList = ref<UploadUserFile[]>([])
-// let attrDataList = ref<SaleAttr[]>([])
-let allSaleAttr = ref<HasSaleAttr[]>([])
+let imgList = ref<SpuImage[]>([])
+let saleAttr = ref<SaleAttr[]>([])
+
+let allSaleAttr = ref<HasSaleAttr[]>([
+  {
+    id: 1,
+    name: '颜色',
+  },
+  {
+    id: 2,
+    name: '版本',
+  },
+  {
+    id: 3,
+    name: '尺码',
+  },
+])
+let unSelectSaleAttr = computed(() => {
+  let unSelect = allSaleAttr.value.filter((item) => {
+    return saleAttr.value.every((i) => {
+      return i.saleAttrName !== item.name
+    })
+  })
+  return unSelect
+})
+let saleAttrIdAndVal = ref<string>('')
+
+const addSaleAttr = () => {
+  let [baseSaleAttrId, saleAttrName] = saleAttrIdAndVal.value.split(':')
+  let newSaleAttr: SaleAttr = {
+    baseSaleAttrId,
+    saleAttrName,
+    spuSaleAttrValueList: [],
+  }
+  saleAttr.value.push(newSaleAttr)
+  saleAttrIdAndVal.value = ''
+}
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -141,28 +226,89 @@ const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
   dialogVisible.value = true
 }
 
+const save = async () => {
+  SPUParams.value.spuImageList = imgList.value.map((item: any) => {
+    return {
+      imgName: item.name,
+      imgUrl: (item.response && item.response.data) || item.url,
+    }
+  })
+  SPUParams.value.spuSaleAttrList = saleAttr.value
+  let res = await reqAddOrUpdateSpu(SPUParams.value)
+  if (res.code == 200) {
+    ElMessage.success('成功')
+    emit('changeScreen', {
+      flag: 0,
+      params: SPUParams.value.id ? 'update' : 'add',
+    })
+  } else {
+    ElMessage.success('失败')
+  }
+}
+
 const cancel = () => {
-  emit('changeScreen')
+  emit('changeScreen', {
+    flag: 0,
+    params: 'update',
+  })
+}
+
+const changeInput = (row: SaleAttr) => {
+  row.flag = true
+  row.saleAttrValue = ''
+}
+const changeBtn = (row: SaleAttr) => {
+  const { baseSaleAttrId, saleAttrValue } = row
+
+  if ((saleAttrValue as string).trim() == '') {
+    ElMessage.error('属性值不能为空')
+    return
+  }
+
+  let newSaleAttrVal: SaleAttrValue = {
+    baseSaleAttrId,
+    saleAttrValueName: saleAttrValue as string,
+  }
+
+  row.spuSaleAttrValueList.push(newSaleAttrVal)
+  row.flag = false
 }
 
 const initHasSpuData = async (row: SpuData) => {
-  console.log('111')
   SPUParams.value = row
-  let res: AllTradeMark = await reqAllTrademark()
   let res1: SpuHasImage = await reqSpuImageList(row.id as number)
   let res2: SaleAttrRes = await reqSpuSaleAttr(row.id as number)
-  let res3: HasSaleAttrRes = await reqAllSaleAttr()
-  allTrademark.value = res.data
   imgList.value = res1.data.map((item) => {
     return {
       name: item.imgName,
       url: item.imgUrl,
     }
   })
-  SPUParams.value.spuSaleAttrList = res2.data
-  allSaleAttr.value = res3.data
+  saleAttr.value = res2.data
 }
-defineExpose({ initHasSpuData })
+
+const initAddSpu = (c3Id: number) => {
+  Object.assign(SPUParams.value, {
+    id: '',
+    spuName: '',
+    description: '',
+    category3Id: '',
+    tmId: '',
+    spuSaleAttrList: [],
+    spuImageList: [],
+  })
+  imgList.value = []
+  saleAttr.value = []
+  saleAttrIdAndVal.value = ''
+  SPUParams.value.category3Id = c3Id
+}
+
+defineExpose({ initHasSpuData, initAddSpu })
+
+onMounted(async () => {
+  let res: AllTradeMark = await reqAllTrademark()
+  allTrademark.value = res.data
+})
 </script>
 
 <style scoped lang="scss"></style>
