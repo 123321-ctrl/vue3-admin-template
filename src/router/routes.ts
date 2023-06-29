@@ -30,6 +30,15 @@ export const constantRoute: RouteRecordRaw[] = [
           icon: 'HomeFilled',
         },
       },
+      {
+        path: '/upload',
+        component: () => import('@/views/upload/index.vue'),
+        meta: {
+          title: '上传',
+          hidden: false,
+          icon: 'HomeFilled',
+        },
+      },
     ],
   },
   {
@@ -42,6 +51,18 @@ export const constantRoute: RouteRecordRaw[] = [
       icon: 'Platform',
     },
   },
+  {
+    path: '/404',
+    component: () => import('@/views/404/index.vue'),
+    name: '404',
+    meta: {
+      title: '404',
+      hidden: true,
+    },
+  },
+]
+
+export const asyncRoute = [
   {
     path: '/acl',
     redirect: '/acl/user',
@@ -119,7 +140,7 @@ export const constantRoute: RouteRecordRaw[] = [
       {
         path: '/product/sku',
         component: () => import('@/views/product/sku/index.vue'),
-        name: 'sku',
+        name: 'Sku',
         meta: {
           title: 'SKU管理',
           hidden: false,
@@ -129,7 +150,7 @@ export const constantRoute: RouteRecordRaw[] = [
       {
         path: '/product/spu',
         component: () => import('@/views/product/spu/index.vue'),
-        name: 'spu',
+        name: 'Spu',
         meta: {
           title: 'SPU管理',
           hidden: false,
@@ -138,15 +159,9 @@ export const constantRoute: RouteRecordRaw[] = [
       },
     ],
   },
-  {
-    path: '/404',
-    component: () => import('@/views/404/index.vue'),
-    name: '404',
-    meta: {
-      title: '404',
-      hidden: true,
-    },
-  },
+]
+
+export const anyRoute = [
   {
     path: '/:pathMatch(.*)*',
     redirect: '/404',

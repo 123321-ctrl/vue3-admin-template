@@ -51,9 +51,10 @@
             编辑
           </el-button>
           <el-popconfirm
-            :title="`你确定要删除${row.username}吗？`"
+            :title="`你确定要删除${row.roleName}吗？`"
             width="250px"
             icon="Delete"
+            @confirm="deleteRole(row.id)"
           >
             <template #reference>
               <el-button type="primary" size="small" icon="Delete">
@@ -101,7 +102,11 @@ import Pagination from '@/components/Pagination/index.vue'
 import powerDrawer from '@/components/drawer/powerDrawer.vue'
 import { ElMessage } from 'element-plus'
 
-import { reqRoleInfo, addOrUpdateRole } from '@/api/acl/role/index'
+import {
+  reqRoleInfo,
+  addOrUpdateRole,
+  reqDeleteRole,
+} from '@/api/acl/role/index'
 import { Records, Role } from '@/api/acl/role/type'
 
 let powerdrawer = ref()
@@ -174,6 +179,16 @@ const reset = () => {
 const setPermission = (roleId: number) => {
   powerdrawer.value.drawer = true
   powerdrawer.value.getAllPermission(roleId)
+}
+
+const deleteRole = async (roleId: number) => {
+  let res = await reqDeleteRole(roleId)
+  if (res.code == 200) {
+    ElMessage.success('删除成功')
+    getAllRole()
+  } else {
+    ElMessage.error('删除失败')
+  }
 }
 
 const getAllRole = async () => {

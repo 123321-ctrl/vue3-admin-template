@@ -29,7 +29,31 @@
         circle
         @click="fullScreen"
       ></el-button>
-      <el-button size="small" icon="Setting" circle></el-button>
+
+      <el-popover
+        placement="bottom"
+        title="主题设置"
+        :width="300"
+        trigger="hover"
+      >
+        <el-form>
+          <el-form-item label="主题颜色">
+            <el-color-picker v-model="color" @change="serColor" />
+          </el-form-item>
+          <el-form-item label="暗黑模式">
+            <el-switch
+              v-model="isdark"
+              active-icon="MoonNight"
+              inactive-icon="Sunny"
+              @change="changeDark"
+            />
+          </el-form-item>
+        </el-form>
+        <template #reference>
+          <el-button size="small" icon="Setting" circle></el-button>
+        </template>
+      </el-popover>
+
       <img :src="userStore.avatar" alt="" />
       <el-dropdown>
         <span class="el-dropdown-link">
@@ -49,10 +73,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
 import useLayoutSettingStore from '@/store/modules/setting'
 import useUserStore from '@/store/modules/user'
+
+let color = ref('#409EFF')
+let isdark = ref(false)
+const serColor = () => {
+  let el = document.documentElement
+  el.style.setProperty('--el-color-primary', color.value)
+}
+
+const changeDark = () => {
+  let html = document.documentElement
+  isdark.value ? (html.className = 'dark') : (html.className = '')
+}
 
 // let newRoute = reactive([])
 let $route = useRoute()

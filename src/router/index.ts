@@ -36,7 +36,8 @@ router.beforeEach(async (to, from, next) => {
       try {
         // 会携带token
         await userStore.userInfo()
-        next()
+        //注意：刷新的时候是异步路由，有可能收到了用户信息，但异步路由还没有加载完成，出现了恐怖效果
+        next({ ...to })
       } catch (error) {
         // 用户修改token，token不匹配
         // 或token过期，token不匹配

@@ -12,7 +12,7 @@
           :default-active="$route.path"
           :collapse="layoutSettingStore.fold ? true : false"
         >
-          <Menu :menuList="constantRoute"></Menu>
+          <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-aside>
       <el-container>
@@ -39,7 +39,10 @@ import { useRoute } from 'vue-router'
 import Logo from '@/components/logo/index.vue'
 import Menu from '@/components/menu/index.vue'
 import Tabbar from '@/components/tabbar/index.vue'
-import { constantRoute } from '@/router/routes'
+
+// import { constantRoute } from '@/router/routes'
+import useUserStore from '@/store/modules/user'
+let userStore = useUserStore()
 
 import useLayoutSettingStore from '@/store/modules/setting'
 

@@ -9,12 +9,31 @@ import type {
   logoutResponseData,
 } from '@/api/user/type'
 import type { UserState } from './types/type'
+import { constantRoute, asyncRoute, anyRoute } from '@/router/routes'
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
+
+import router from '@/router'
+
+// 注意：要深拷贝，访问原始数据被更改
+// @ts-ignore
+import cloneDeep from 'lodash/cloneDeep'
+
+function filterAsyncRoute(asyncRoute: any, routes: any) {
+  return asyncRoute.filter((item: any) => {
+    if (routes.includes(item.name)) {
+      if (item.children && item.children.length > 0) {
+        item.children = filterAsyncRoute(item.children, routes)
+      }
+      return true
+    }
+  })
+}
 
 let useUserStore = defineStore('User', {
   state: (): UserState => {
     return {
       token: GET_TOKEN(),
+      menuRoutes: constantRoute,
       username: '',
       avatar: '',
     }
@@ -39,6 +58,20 @@ let useUserStore = defineStore('User', {
       if (res.code == 200) {
         this.username = res.data.name
         this.avatar = res.data.avatar
+
+        //过滤路由
+        let userAsyncRoute = filterAsyncRoute(
+          cloneDeep(asyncRoute),
+          res.data.routes,
+        )
+        this.menuRoutes = [...constantRoute, ...userAsyncRoute, ...anyRoute]
+
+        let pushRoutes = [...userAsyncRoute, ...anyRoute]
+        pushRoutes.forEach((route: any) => {
+          router.addRoute(route)
+        })
+        console.log(router.getRoutes())
+
         return 'ok'
       } else {
         ElMessage({
