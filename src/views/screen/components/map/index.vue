@@ -5,10 +5,10 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
-import chinaJSON from './china.json'
+// import chinaJSON from './china.json'
 
 let map = ref()
-echarts.registerMap('china', chinaJSON)
+// echarts.registerMap('china', chinaJSON)
 
 onMounted(() => {
   let mycharts = echarts.init(map.value)

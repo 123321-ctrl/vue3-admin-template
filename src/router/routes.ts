@@ -39,6 +39,15 @@ export const constantRoute: RouteRecordRaw[] = [
           icon: 'HomeFilled',
         },
       },
+      {
+        path: '/echart',
+        component: () => import('@/views/echart/index.vue'),
+        meta: {
+          title: '图表',
+          hidden: false,
+          icon: 'HomeFilled',
+        },
+      },
     ],
   },
   {
@@ -47,6 +56,16 @@ export const constantRoute: RouteRecordRaw[] = [
     name: 'screen',
     meta: {
       title: '数据大屏',
+      hidden: false,
+      icon: 'Platform',
+    },
+  },
+  {
+    path: '/myScreen',
+    component: () => import('@/views/myScreen/index.vue'),
+    name: 'myScreen',
+    meta: {
+      title: 'Echarts组件封装',
       hidden: false,
       icon: 'Platform',
     },
